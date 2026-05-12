@@ -1,9 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { KPICard } from '@/components/shared/kpi-card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency, formatDateTime, formatOrderNumber } from '@/lib/utils/formatters'
 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '@/lib/utils/constants'
 import {
@@ -255,10 +253,10 @@ export default async function DashboardPage() {
                   <span
                     className={cn(
                       'text-xs px-2 py-0.5 rounded-full font-medium',
-                      ORDER_STATUS_COLORS[order.status]
+                      ORDER_STATUS_COLORS[order.status as keyof typeof ORDER_STATUS_COLORS]
                     )}
                   >
-                    {ORDER_STATUS_LABELS[order.status]}
+                    {ORDER_STATUS_LABELS[order.status as keyof typeof ORDER_STATUS_LABELS]}
                   </span>
                 </div>
 
