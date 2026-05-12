@@ -9,7 +9,7 @@ import { CustomerHistory } from '@/components/clientes/customer-history'
 import { CustomerForm } from '@/components/clientes/customer-form'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { ArrowLeft, Edit, Plus, Phone, MapPin, Instagram, Mail, Calendar } from 'lucide-react'
+import { ArrowLeft, Edit, Plus, Phone, MapPin, Globe, Mail, Calendar } from 'lucide-react'
 
 // Utiliza a prop params descapsulada com React.use
 export default function ClienteDetalhePage(props: { params: Promise<{ id: string }> }) {
@@ -108,7 +108,7 @@ export default function ClienteDetalhePage(props: { params: Promise<{ id: string
 
               {customer.instagram && (
                 <div className="flex items-start gap-3 text-sm">
-                  <Instagram size={16} className="text-white/40 mt-0.5" />
+                  <Globe size={16} className="text-white/40 mt-0.5" />
                   <div>
                     <p className="text-white/90 font-medium">{customer.instagram}</p>
                     <p className="text-xs text-white/40">Instagram</p>

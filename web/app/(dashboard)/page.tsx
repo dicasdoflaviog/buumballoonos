@@ -24,7 +24,7 @@ interface UpcomingOrder {
   status: string
   pickup_datetime: string
   total: number
-  customers: { full_name: string } | null
+  customers: any
 }
 
 // ─── Server Component: busca todos os dados no servidor ───────────────────────
@@ -238,7 +238,9 @@ export default async function DashboardPage() {
                 {/* Cliente */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">
-                    {order.customers?.full_name ?? '—'}
+                    {Array.isArray(order.customers) 
+                      ? order.customers[0]?.full_name 
+                      : order.customers?.full_name ?? '—'}
                   </p>
                   <p
                     className="text-xs mt-0.5 truncate"
