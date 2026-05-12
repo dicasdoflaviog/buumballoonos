@@ -25,41 +25,31 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Usar getUser() no lugar de getSession() para validar com o servidor
-  // e evitar loops quando o JWT local expira mas os cookies ainda existem
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  const pathname = request.nextUrl.pathname
-  const isAuthRoute = pathname.startsWith('/login')
-  const isPublicAsset =
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/icons') ||
-    pathname.startsWith('/api/webhooks') ||
-    pathname === '/manifest.json' ||
-    pathname === '/favicon.ico'
+  const isPublicRoute = 
+    request.nextUrl.pathname.startsWith('/login') ||
+    request.nextUrl.pathname.startsWith('/api/webhooks') ||
+    request.nextUrl.pathname.startsWith('/_next') ||
+    request.nextUrl.pathname.startsWith('/icons') ||
+    request.nextUrl.pathname === '/manifest.json' ||
+    request.nextUrl.pathname === '/sw.js'
 
-  // Não proteger assets públicos e webhooks
-  if (isPublicAsset) return supabaseResponse
-
-  // Sem usuário tentando acessar área protegida → redirecionar para login
-  if (!user && !isAuthRoute) {
-    const loginUrl = new URL('/login', request.url)
-    return NextResponse.redirect(loginUrl)
+  if (!user && !isPublicRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
   }
 
-  // Com usuário tentando acessar login → redirecionar para dashboard
-  if (user && isAuthRoute) {
-    const dashboardUrl = new URL('/', request.url)
-    return NextResponse.redirect(dashboardUrl)
+  if (user && request.nextUrl.pathname === '/login') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url)
   }
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icons|manifest.json).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|icons|manifest.json|sw.js).*)'],
 }
