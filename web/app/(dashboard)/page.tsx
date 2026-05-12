@@ -41,50 +41,79 @@ export default async function DashboardPage() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString()
 
-  const { data: paymentsThisMonth } = await supabase
-    .from('payments')
-    .select('amount')
-    .eq('status', 'recebido')
-    .gte('received_at', startOfMonth)
-    .lte('received_at', endOfMonth)
+  let faturamentoMes = 0
+  try {
+    const { data: paymentsThisMonth } = await supabase
+      .from('payments')
+      .select('amount')
+      .eq('status', 'recebido')
+      .gte('received_at', startOfMonth)
+      .lte('received_at', endOfMonth)
 
-  const faturamentoMes = (paymentsThisMonth ?? []).reduce(
-    (sum, p) => sum + p.amount, 0
-  )
+    faturamentoMes = (paymentsThisMonth ?? []).reduce(
+      (sum, p) => sum + p.amount, 0
+    )
+  } catch (err) {
+    console.error('Erro ao buscar faturamentoMes:', err)
+  }
 
   // ── 2. Pedidos em aberto ───────────────────────────────────────────────────
-  const { count: pedidosAberto } = await supabase
-    .from('orders')
-    .select('id', { count: 'exact', head: true })
-    .in('status', ['novo', 'confirmado', 'em_producao', 'pronto'])
+  let pedidosAberto = 0
+  try {
+    const { count } = await supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .in('status', ['novo', 'confirmado', 'em_producao', 'pronto'])
+    pedidosAberto = count ?? 0
+  } catch (err) {
+    console.error('Erro ao buscar pedidosAberto:', err)
+  }
 
   // ── 3. Mêsversários ativos ────────────────────────────────────────────────
-  const { count: mesversariosAtivos } = await supabase
-    .from('mesversario_contracts')
-    .select('id', { count: 'exact', head: true })
-    .eq('status', 'ativo')
+  let mesversariosAtivos = 0
+  try {
+    const { count } = await supabase
+      .from('mesversario_contracts')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'ativo')
+    mesversariosAtivos = count ?? 0
+  } catch (err) {
+    console.error('Erro ao buscar mesversariosAtivos:', err)
+  }
 
   // ── 4. MRR (receita recorrente) ───────────────────────────────────────────
-  const { data: contratosAtivos } = await supabase
-    .from('mesversario_contracts')
-    .select('monthly_price')
-    .eq('status', 'ativo')
+  let mrr = 0
+  try {
+    const { data: contratosAtivos } = await supabase
+      .from('mesversario_contracts')
+      .select('monthly_price')
+      .eq('status', 'ativo')
 
-  const mrr = (contratosAtivos ?? []).reduce(
-    (sum, c) => sum + c.monthly_price, 0
-  )
+    mrr = (contratosAtivos ?? []).reduce(
+      (sum, c) => sum + c.monthly_price, 0
+    )
+  } catch (err) {
+    console.error('Erro ao buscar mrr:', err)
+  }
 
   // ── 5. Próximas 5 entregas (próximos 3 dias) ──────────────────────────────
   const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
-
-  const { data: upcomingOrders } = await supabase
-    .from('orders')
-    .select('id, order_number, status, pickup_datetime, total, customers(full_name)')
-    .gte('pickup_datetime', now.toISOString())
-    .lte('pickup_datetime', in3Days)
-    .not('status', 'in', '("cancelado","entregue","retirado")')
-    .order('pickup_datetime', { ascending: true })
-    .limit(5)
+  let upcomingOrders: UpcomingOrder[] = []
+  
+  try {
+    const { data } = await supabase
+      .from('orders')
+      .select('id, order_number, status, pickup_datetime, total, customers(full_name)')
+      .gte('pickup_datetime', now.toISOString())
+      .lte('pickup_datetime', in3Days)
+      .not('status', 'in', '("cancelado","entregue","retirado")')
+      .order('pickup_datetime', { ascending: true })
+      .limit(5)
+      
+    upcomingOrders = (data ?? []) as UpcomingOrder[]
+  } catch (err) {
+    console.error('Erro ao buscar upcomingOrders:', err)
+  }
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
