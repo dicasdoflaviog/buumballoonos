@@ -15,7 +15,7 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: '#0D0A14' }}>
-      <RealtimeProvider />
+      {/* <RealtimeProvider /> */}
       {/* Sidebar fixa — desktop */}
       <aside
         className="hidden lg:flex flex-col shrink-0"
