@@ -152,7 +152,7 @@ export default function NovoPedidoPage() {
                 <SelectValue placeholder="Selecione..." />
               </SelectTrigger>
               <SelectContent>
-                {OCCASION_TAGS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                {Object.entries(OCCASION_TAGS).map(([key, label]) => <SelectItem key={key} value={label}>{label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
