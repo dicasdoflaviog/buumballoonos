@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Sidebar } from '@/components/shared/sidebar'
 import { Header } from '@/components/shared/header'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
-import { RealtimeProvider } from '@/components/shared/realtime-provider'
 
 export default function DashboardLayout({
   children,
@@ -15,7 +14,6 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: '#0D0A14' }}>
-      {/* <RealtimeProvider /> */}
       {/* Sidebar fixa — desktop */}
       <aside
         className="hidden lg:flex flex-col shrink-0"
