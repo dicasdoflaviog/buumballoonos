@@ -3,7 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   turbopack: {},
   images: {
-    domains: ['teacvdvxxoizrwxruprg.supabase.co']
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'teacvdvxxoizrwxruprg.supabase.co',
+      }
+    ]
   }
 };
 

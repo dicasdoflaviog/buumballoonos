@@ -25,10 +25,11 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Obter sessão — NUNCA usar getUser() no middleware (custo de rede)
+  // Usar getUser() no lugar de getSession() para validar com o servidor
+  // e evitar loops quando o JWT local expira mas os cookies ainda existem
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const pathname = request.nextUrl.pathname
   const isAuthRoute = pathname.startsWith('/login')
@@ -42,14 +43,14 @@ export async function middleware(request: NextRequest) {
   // Não proteger assets públicos e webhooks
   if (isPublicAsset) return supabaseResponse
 
-  // Sem sessão tentando acessar área protegida → redirecionar para login
-  if (!session && !isAuthRoute) {
+  // Sem usuário tentando acessar área protegida → redirecionar para login
+  if (!user && !isAuthRoute) {
     const loginUrl = new URL('/login', request.url)
     return NextResponse.redirect(loginUrl)
   }
 
-  // Com sessão tentando acessar login → redirecionar para dashboard
-  if (session && isAuthRoute) {
+  // Com usuário tentando acessar login → redirecionar para dashboard
+  if (user && isAuthRoute) {
     const dashboardUrl = new URL('/', request.url)
     return NextResponse.redirect(dashboardUrl)
   }
