@@ -7,18 +7,23 @@ type RealtimeCallback = (payload: any) => void
 
 export function useOrdersRealtime(callback: RealtimeCallback) {
   const callbackRef = useRef(callback)
+  const channelRef = useRef<any>(null)
 
   useEffect(() => {
     callbackRef.current = callback
   }, [callback])
 
   useEffect(() => {
+    if (channelRef.current) return
+
     const supabase = createClient()
     const channelName = 'orders_realtime_ui'
-    
-    // Check if channel already exists
+
     const existingChannel = supabase.getChannels().find(c => c.topic === `realtime:${channelName}`)
-    if (existingChannel) return
+    if (existingChannel) {
+      channelRef.current = existingChannel
+      return
+    }
 
     const channel = supabase
       .channel(channelName)
@@ -31,26 +36,35 @@ export function useOrdersRealtime(callback: RealtimeCallback) {
       )
       .subscribe()
 
+    channelRef.current = channel
+
     return () => {
-      supabase.removeChannel(channel)
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current)
+        channelRef.current = null
+      }
     }
-  }, []) // Empty dependency array prevents re-subscribing on every render
+  }, [])
 }
 
 export function usePaymentsRealtime(orderId: string, callback: RealtimeCallback) {
   const callbackRef = useRef(callback)
+  const channelRef = useRef<any>(null)
 
   useEffect(() => {
     callbackRef.current = callback
   }, [callback])
 
   useEffect(() => {
-    if (!orderId) return
+    if (!orderId || channelRef.current) return
     const supabase = createClient()
     const channelName = `payments_realtime_${orderId}`
     
     const existingChannel = supabase.getChannels().find(c => c.topic === `realtime:${channelName}`)
-    if (existingChannel) return
+    if (existingChannel) {
+      channelRef.current = existingChannel
+      return
+    }
 
     const channel = supabase
       .channel(channelName)
@@ -63,8 +77,13 @@ export function usePaymentsRealtime(orderId: string, callback: RealtimeCallback)
       )
       .subscribe()
 
+    channelRef.current = channel
+
     return () => {
-      supabase.removeChannel(channel)
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current)
+        channelRef.current = null
+      }
     }
-  }, [orderId]) // Re-run only if orderId changes
+  }, [orderId])
 }
