@@ -5,6 +5,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Buum brand colors */
+  --color-buum-rosa: #FF3D7F;
+  --color-buum-lilas: #C084FC;
+  --color-buum-verde: #06D6A0;
+  --color-buum-amarelo: #FFD166;
+  --color-buum-escuro: #0D0A14;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
